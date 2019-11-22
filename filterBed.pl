@@ -9,6 +9,10 @@ getopts("g:m:cA:", \%opts);
 my $usage = "*********
 Usage: filterBed.pl <options> <File.bed> <limit> > STDOUT
 *********
+This script will execute various filters or modifications (denoted with the -m option)
+to a provided bed file where limit is an integer provided by the user to denote the 
+cut off value for the \"m\" options, e.g. -m 1 with limit = 100 will only return
+bed features >= 100bp.
 
 Where:
 	-m <int> selects what method to apply to bed filter:
@@ -43,7 +47,9 @@ Where:
 		circular chromosomes or plasmids so that when new coordinates 
 		exceed the actual genome coordinates they will wrap/span the genome start/stop
 	
-	-A <str> Add string to feature name\n";	
+	-A <str> Add string to feature name
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 
 #############_usage statmentes_############
 if(@ARGV != 2){

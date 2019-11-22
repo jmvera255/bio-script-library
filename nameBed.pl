@@ -16,9 +16,14 @@ if(@ARGV != 1){
 Usage: nameCUT.pl <option> <file.bed> > STDOUT
 **********
 
--s <str> base name for features (required)
--n <int> designates at what number to start the count at
-	 for naming the annotations; default = 1\n";
+-s <string>	 base name for features (required)
+-n <int> 	designates at what number to start the count at
+	 	for naming the annotations; default = 1
+
+Example: I want my bed file features to be named TSS_<int> then use -s TSS
+
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
 
 my $file = shift;

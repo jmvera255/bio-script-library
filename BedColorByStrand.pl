@@ -7,7 +7,14 @@ if (@ARGV != 1){
 
 ********
 Usage: BedColorByStrand.pl <file.bed> > STDOUT
-********\n";
+********
+
+This script will take in a bed file and add (or replace) columns 7-9
+to convey color coding for stranded features in the bed file. Minus (-) strand
+features will be colored blue, plus (+) strand features will be colored red.
+Note: the bed file provided must be stranded and have 6 columns.
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
 
 my $bedFile = shift;

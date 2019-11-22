@@ -6,16 +6,26 @@ use Getopt::Std;
 my (%opts);
 getopts("RpmS:B", \%opts);
 
-my $USAGE = "\nUsage: perl ntcov2bedgraph.pl <options> <ntcov.txt> > STDOUT\n
+my $USAGE = "\nUsage: perl ntcov2bedgraph.pl <options> <ntcov.txt> > STDOUT
+
+This script will convert a ntcov.txt file (bedTools genomeCoverageBed -d) to a bed file or
+a bedgraph file, the latter being for visualization purposes. This is useful is you are making modifications
+to the values of read coverage in the ntcov.txt file (e.g. normalization, pooling, averaging, etc) but then want 
+to visualize these modified coverage values.
+
 Where options are:
-	-B	output a BED file; ignores positions with coverage = 0
+	-B	output a BED file where each position in the ntcov.txt file becomes
+		a bed feature; ignores positions with coverage = 0
+
     for bed or bedgraph output:
 	-p	specifies that this file is for the plus strand of DNA
 	-m	specifies that this file is for the minus strand of the DNA
 
     for ntcov output:
 	-R	reverse conversion, i.e. bedgraph to ntcov.txt
-	-S <seqstat.txt> must provide a genome dictionary\n\n";	
+	-S      <genome.txt> must provide a genome dictionary (seqstat.pl can make this for you!)
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 
 if(@ARGV != 1){
 	die "\nNo input file provided\n$USAGE";
@@ -74,24 +84,24 @@ if(not defined $opts{R}){
 		@sorted_coords = ();
 	}
 	if($file =~ /fold/){
-		if ($file =~ /plus/){
-			print "track type=bedGraph yLineOnOff=on yLineMark=2\n";
-		}
-		elsif($file =~ /minus/){
-			print "track type=bedGraph yLineOnOff=on yLineMark=-2\n";
-		}
-		
+#		if ($file =~ /plus/){
+#			print "track type=bedGraph yLineOnOff=on yLineMark=2\n";
+#		}
+#		elsif($file =~ /minus/){
+#			print "track type=bedGraph yLineOnOff=on yLineMark=-2\n";
+#		}
+#		
 	}
 	else{
 		if(defined $opts{p}){
 			$strand = "+";
 			$color = "204,0,0";
-#			print "type=bedGraph color=238,0,0\n";
+			print "type=bedGraph color=204,0,0 autoScale=on\n";
 		}
 		elsif(defined $opts{m}){
 			$strand = "-";
 			$color = "0,0,175";
-#			print "type=bedGraph color=0,0,175\n";
+			print "type=bedGraph color=0,0,175 autoScale=on\n";
 		}
 	}
 	

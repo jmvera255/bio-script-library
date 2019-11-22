@@ -6,9 +6,19 @@ getopts("c:", \%opts);
 
 if(@ARGV < 1){
 	die "
-iprintBed.pl <list.txt> <file.bed> > STDOUT
+printBed.pl <options> <list.txt> <file.bed> > STDOUT
 
-use -c <int> to specify a column is list.txt is tab-delimited\n\n";
+use -c <int> to specify a column in the list.txt if there are multiple columns, also
+if multiple columns are present in list.txt it must be tab-delimited
+
+This script will take a list of bed file feature names and return the features in the provided
+bed file that have that name. Good for pulling out a subset of features from a larger bed file.
+
+Note: The provided bed file must have at least 4 columns where the 4th column is used to denote
+the feature name. 
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
+
 }
 
 my(%bedLines);

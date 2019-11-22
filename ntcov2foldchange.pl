@@ -6,39 +6,38 @@ use Getopt::Std;
 my (%opts, $ColNum);
 getopts("fazpn:", \%opts);
 
-if(defined $opts{n}){
-	if(@ARGV != 1){
-		die "\nYou must only provided a single ntcov.txt file
-
+my $usage = "********
+Usage: ntcov2foldchange.pl <options> <ntcov.txt 1> <ntcov.txt 2> > STDOUT
 ********
-Usage: ntcov2foldchange.pl -n <int> <file.ntcov.txt> > STDOUT
-********\n";
-}}
 
-else{
-	if(@ARGV < 2){
-		die "Inappropriate number of files provided.
-
-********
-Usage: ntcov2foldchange.pl <option> <file.ntcov.txt> > STDOUT
-********
+This script will perform mathematical manipulations on read coverage data in ntcov.txt format
+(i.e. bedTools genomeCoverageBed -d). Options include normalizing read coverage (-n), averaging data
+across samples (-a), pooling data across  
 
 where options are:
--f	
-	foldchange is calculated as file1/file2; includes a  La Place constant of 1
--a	
-	value at each position is averaged
--z	
-	report all nonzero coverage positions
--p
-	pool all values at each position
--n <int>
-	normalize the value at each position by <int>\n";
+	-f	 foldchange is calculated as file1/file2
+	-a	 value at each position is averaged across; >= 2 ntcov.txt files must/can be provided
+	-z	 report all nonzero (> 0) coverage positions; user can provide any number of ntcov.txt files
+		 but will report positions that are nonzero only in at least one of the files
+	-p	 pool (i.e. sum) all values at each position; >= 2 ntcov.txt files must/can be provided
+	-n <int> normalize the value at each position by dividing by <int>; 
+		 User must only provide a single ntcov.txt file
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
+
+if(defined $opts{n}){
+	if(@ARGV != 1){
+		die "\nUser must only provide a single ntcov.txt file when using the -n option!\n\n$usage\n";
 	}
 }
 
+else{
+	if(@ARGV < 2){
+		die "\nInappropriate number of files provided.\n\n$usage\n";
+	}
+}
 
-my(%hash, $strand, @cov, $int, $sum);
+my(%hash, $strand, @cov, $int, $sum, %nonZero);
 
 foreach my $file (@ARGV){
 	open(FILE, "< $file") || die "cannot open file $file";
@@ -73,14 +72,19 @@ foreach my $chr (sort {$a cmp $b} keys %hash){
 			print "$chr\t$nt\t$sum\n";
 		}
 		elsif(defined $opts{z}){
-			if($hash{$chr}{$nt}[0] > 0){
-				#print "$chr\t$nt\t$hash{$chr}{$nt}[0]\n";
-				push(@cov, $hash{$chr}{$nt}[0]);
+			foreach my $test (@{$hash{$nt}}){
+				if($test > 0){
+					push(@{$nonZero{$chr}{$nt}}, $test);
+				}
 			}
-			if($hash{$chr}{$nt}[1] > 0){
-				#print "$chr\t$nt\t$hash{$chr}{$nt}[0]\n";
-				push(@cov, $hash{$chr}{$nt}[1]);
-			}
+#			if($hash{$chr}{$nt}[0] > 0){
+#				#print "$chr\t$nt\t$hash{$chr}{$nt}[0]\n";
+#				push(@cov, $hash{$chr}{$nt}[0]);
+#			}
+#			if($hash{$chr}{$nt}[1] > 0){
+#				#print "$chr\t$nt\t$hash{$chr}{$nt}[0]\n";
+#				push(@cov, $hash{$chr}{$nt}[1]);
+#			}
 		}
 		elsif(defined $opts{n}){
 			my $int = $opts{n};
@@ -96,8 +100,14 @@ foreach my $chr (sort {$a cmp $b} keys %hash){
 }
 
 if(defined $opts{z}){
-	@cov = sort {$a <=> $b} @cov;
-	foreach my $c (@cov){
-		print "$c\n";
+	foreach my $chr (sort {$a cmp $b} keys %nonZero){
+		foreach my $nt (sort {$a <=> $b} keys %{$nonZero{$chr}}){
+			print "$chr\t$nt\t";
+			my $line = join(@{$nonZero{$chr}{$nt}});
+			print "$line\n";
+		}
 	}
+#	@cov = sort {$a <=> $b} @cov;
+#	foreach my $c (@cov){
+#		print "$c\n";
 }

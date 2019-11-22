@@ -10,7 +10,15 @@ No FASTA file provided!
 
 *********
 Usage: seqstat.pl <any # of fasta files> > STDOUT
-*********\n\n";
+*********
+
+This script will take a fasta file and return a tab-delimited report
+of the sequence name and sequence length of each sequence in the fasta
+file. Will work for both nucleic acid and amino acid sequences.
+
+For questions see Jessica Vera.
+
+This script was written by Jessica M. Vera\n\n";
 }
 
 #declare gobal variables    
@@ -27,7 +35,7 @@ foreach my $faFile (@ARGV){
 	}
 	$sum = 0; 
 	$sum += $_ for @lens;
-	print "Total length for $faFile = $sum" . "bp\n";
+#	print "Total length for $faFile = $sum" . "bp\n";
 	@lens = ();
 }
 

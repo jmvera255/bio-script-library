@@ -22,6 +22,10 @@ if(@ARGV != 2){
 ********
 Usage: grepList.pl <options> <list.txt> <grepFile>
 ********
+
+This script will take a list and for each line in that list it will execute
+a grep command on the targeted grepFile. Use the options to modify how the
+list file is parsed and how the grep command is formatted.
   
 -c	if you wish to parse a specific column of a tab-delimited
 	file then you must denote column (starts at 0)
@@ -41,7 +45,9 @@ Usage: grepList.pl <options> <list.txt> <grepFile>
 
 -i	ignore case
 
--d	search redundantly\n";
+-d	search redundantly
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
 
 my(%list, @list, @parameters);

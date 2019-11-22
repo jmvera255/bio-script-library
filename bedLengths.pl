@@ -7,7 +7,17 @@ if (@ARGV != 1){
 
 **********
 Usage: bedLengths.pl <file.bed> > STDOUT
-**********\n";
+**********
+
+This script will take a bed file and print out the length of each
+annotation in the bed file in the following tab-delimited format:
+
+Length	FeatureName
+Length	FeatureName
+Length	FeatureName
+...
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
 
 my $file = shift;
@@ -26,7 +36,3 @@ while(my $line = <BED>){
 		print "$length\t$tabs[3]\n";
 	}
 }
-
-#foreach my $z (sort {$l{$a} <=> $l{$b}} keys %l){
-#	print "$l{$z}\t$z\n";
-#}

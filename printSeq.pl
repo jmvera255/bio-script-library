@@ -4,10 +4,10 @@ use strict;
 use Getopt::Std;
 
 my (%opts, @list, $name, %genome);
-getopts("g:l:c:t", \%opts);
+getopts("f:l:c:t", \%opts);
 
 
-if((not defined ($opts{g})) || (not defined ($opts{l}))){
+if((not defined ($opts{f})) || (not defined ($opts{l}))){
 	die "\nInappropriate number of arguments provided
 
 ********
@@ -15,10 +15,17 @@ Usage: printSeq.pl <options> > STDOUT
 ********
 
 where options:
-	-g <genome.fa>	specifies the genome sequence to pull seq from
-	-l <list.txt>	a list containing sequence names to pull from genome.fa
+	-f <file.fa>	specifies the genome sequence to pull seq from
+	-l <list.txt>	a list containing sequence names to pull from file.fa
+			this list in one name per line
 	-c <int>	if list.txt is tab-delimited, specify column to read
-	-t		output in tab-delimited format instead of fasta\n\n";
+	-t		output in tab-delimited format instead of fasta
+
+This script will take a list of sequence names and return only those sequences if
+those sequences are found in the provided file.fa. Good for selecting a subset of sequences
+of interest from a larger set of sequences in the file.fa
+
+This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
 
 ###### parse list.txt, create array with desired sequence names ######
@@ -39,7 +46,7 @@ close(LIST);
 
 ###### parse genome.fa, create a hash: genome{name} = seq #######
 my $seq = "";
-open(GENOME, "< $opts{g}") || die "Cannot open genome $opts{g}!\n";
+open(GENOME, "< $opts{f}") || die "Cannot open file.fa $opts{g}!\n";
 while(my $line = <GENOME>){
 	chomp($line);
 	if($line =~/^>(\S+)/){
