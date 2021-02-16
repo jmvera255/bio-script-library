@@ -13,9 +13,8 @@ while(my $line = <LOG>){
   chomp($line);
   if($line =~ /^0/){
     my($job_id, $date, $time);
-# 000 (13697854.000.000) 2021-02-15 10:06:43 Job submitted from host: <128.104.100.44:9618?addrs=128.104.100.44-9618+[2607-f388-107c-501-92e2-baff-fe2c-2724]-9618&alias=submit3.chtc.wisc.edu&noUDP&sock=schedd_885991_b5fd>
-# 000 (8883097.000.000) 2021-02-11 14:54:41 Job submitted from host: <128.104.101.92:9618?addrs=128.104.101.92-9618+[2607-f388-107c-501-a236-9fff-fe3c-caa8]-9618&alias=submit2.chtc.wisc.edu&noUDP&sock=schedd_4911_1db1>
     $line =~ /^\d\d\d \(([0-9]{7,8}.[0-9]{3,5})\.\d\d\d\) (\d\d\d\d-\d\d-\d\d) (\d\d:\d\d:\d\d)/;
+    $job_id = $1;
     $date = $2;
     $time = $3;
     my $epoch_time = getEpoch($date, $time);
