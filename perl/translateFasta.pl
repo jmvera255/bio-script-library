@@ -9,7 +9,8 @@ use Getopt::Std;
 my (%opts, $chr, %fa, $seq);
 getopts("f:t:NTC", \%opts);
 
-if((not defined $opts{C} && @ARGV == 0)){
+#if(not defined $opts{C} && @ARGV == 0){
+if(@ARGV == 0 && not defined($opts{C})){
     die "
 No FASTA file provided!
 
@@ -38,20 +39,19 @@ where options are:
 
 This script was written by Jessica M. Vera, for questions please contact her.\n\n";
 }
-
-#declare gobal variables    
-my($chr, %fa, $seq, $sum, @lens, $len);
-my $frame = 0;
-my $table = 1;
-
-if(defined $opts{C}){
+elsif(defined $opts{C}){
 	for(my $i=1;$i<=25;$i++){
 		my $codon = Bio::Tools::CodonTable ->new(-id => $i);
 		my $tableName = $codon -> name();
 		print STDERR "\n$i = $tableName\n";
 	}
 }
-else{
+
+#declare gobal variables
+my($chr, %fa, $seq, $sum, @lens, $len);
+my $frame = 0;
+my $table = 1;
+
 if(defined $opts{f}){
 	print STDERR "\nThe user has requested to translate frame $opts{f}\n";
 	$frame = $opts{f};
@@ -67,7 +67,7 @@ else{
 }
 
 foreach my $faFile (@ARGV){
-	my $seq_in = Bio::SeqIO->new(-file => $faFile, -format => 'fasta'); 
+	my $seq_in = Bio::SeqIO->new(-file => $faFile, -format => 'fasta');
 	while(my $seq = $seq_in->next_seq()){
 		my($protein);
 		my $id = $seq -> id;
@@ -87,5 +87,4 @@ foreach my $faFile (@ARGV){
 			$seq_out ->write_seq($protein);
 		}
 	}
-}}
-
+}
