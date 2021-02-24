@@ -9,7 +9,6 @@ use Getopt::Std;
 my (%opts, $chr, %fa, $seq);
 getopts("f:t:NTC", \%opts);
 
-#if(not defined $opts{C} && @ARGV == 0){
 if(@ARGV == 0 && not defined($opts{C})){
     die "
 No FASTA file provided!
