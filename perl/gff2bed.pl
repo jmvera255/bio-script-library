@@ -19,7 +19,8 @@ options:
 	-C	Bed2Crd reverse conversion but instead of a GFF output
 		you will get a .coord or .crd output which is
 		gene\tstart\tstop\tseq (for use with TransTermHP)
-	-S <string> specify the string of the column 9 key for specifying value to use in BED name col\n\n";
+	-S <string> specify the string of the column 9 key for specifying value 
+	to use in BED name col\n\n";
 	
 }
 
@@ -97,7 +98,7 @@ else{
 					}
 					$name = $tempHash{$opts{S}};
 				}
-				elsif($tabs2[0] =~ /^ID=(\S+)_JAY291/ || $tabs2[0]=~ /ID=(\S+)/){
+				elsif($tabs2[0]=~ /ID=(\S+)/){
 					$name = $1;
 				}
 				elsif($tabs2[0] =~ /^NAME=(\S+)/i){
