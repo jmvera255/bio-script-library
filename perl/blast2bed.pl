@@ -22,27 +22,29 @@ while (my $result = $blast_in -> next_result()){
 	my $query = $result -> query_name;
 	#print OUT "$query\n";
 	my @hits = $result -> hits;
-	@hits = sort {$a -> bits <=> $b -> bits} @hits;
-	my $hit = pop(@hits);
-	my $chr = $hit-> name;
-	my @hsps = $hit-> hsps;
-	@hsps = sort{$a -> bits <=> $b -> bits} @hsps;
-	my $hsp = pop(@hsps);
-	if(defined $hsp){
-		my $test = $hsp -> strand('hit');
-		if($test== 1){
-			$strand = "+";
-		}
-		else{
-			$strand = "-";
-		}
-		my $start = ($hsp -> start('hit')) - 1;
-		my $stop = $hsp -> end('hit');
-		my $E = $hsp -> evalue;
-    $bed{$query} = join("\t", $chr, $start, $stop, $query, $E, $strand);
-  }
+	if(scalar(@hits) != 0){
+		@hits = sort {$a -> bits <=> $b -> bits} @hits;
+		my $hit = pop(@hits);
+		my $chr = $hit-> name;
+		my @hsps = $hit-> hsps;
+		@hsps = sort{$a -> bits <=> $b -> bits} @hsps;
+		my $hsp = pop(@hsps);
+		if(defined $hsp){
+			my $test = $hsp -> strand('hit');
+			if($test== 1){
+				$strand = "+";
+			}
+			else{
+				$strand = "-";
+			}
+			my $start = ($hsp -> start('hit')) - 1;
+			my $stop = $hsp -> end('hit');
+			my $E = $hsp -> evalue;
+	   		 $bed{$query} = join("\t", $chr, $start, $stop, $query, $E, $strand);
+	 	 }
+	}
 	else{
-    print STDERR "WARNING: no hits found for $query\n"
+    		print STDERR "No hits found for $query\n"
 	}
 }
 foreach my $q (sort {$a cmp $b} keys %bed){
