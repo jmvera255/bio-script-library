@@ -18,11 +18,11 @@ Usage: bedsfetch.pl <options> <file.bed> <genome.fa> > STDOUT
 ##########
 
 where options are:
-	-g	specifies that the input is a GFF3 file
+(deprecated) -g	specifies that the input is a GFF3 file
 		will use Parent qualifier, else ID if none present
-	-t	output in tab-delimited format, i.e. name-tab-seq
+	     -t	output in tab-delimited format, i.e. name-tab-seq
 		default is fasta format
-	-R	output RNA sequence instead of DNA\n"
+	     -R	output RNA sequence instead of DNA\n"
 }
 
 
@@ -91,7 +91,9 @@ else{
 				$start = $tabs[1] + 1;
 				$stop = $tabs[2];
 			}
-			push(@{$bed{$tabs[0]}{$tabs[3]}}, $start, $stop, $tabs[5]);
+			# allow for redundant feature names
+			push(@{$bed{$tabs[0]}{join("_", $start, $stop)}},$tabs[3], $tabs[5]);
+			#push(@{$bed{$tabs[0]}{$tabs[3]}}, $start, $stop, $tabs[5]);
 		}
 	}
 }
@@ -99,20 +101,19 @@ else{
 ######################################
 ## print out sequences ###############
 ######################################
-my $seqio_object = Bio::SeqIO->new(-file => $genome, -format => 'fasta'); 
 foreach my $chr (sort {$a cmp $b} keys %bed){
+	my $seqio_object = Bio::SeqIO->new(-file => $genome, -format => 'fasta'); 
 	my $seq = $seqio_object->next_seq();
 	until($seq -> id =~ /$chr/){
 		$seq = $seqio_object->next_seq();
 	}
 	my $t = $seq -> id;
-#	print STDERR "the chr is $chr and the id is $t\n";
-	foreach my $f (sort {$a <=> $b} keys %{$bed{$chr}}){
-#	print "$f\n";
+	foreach my $f (sort {$a cmp $b} keys %{$bed{$chr}}){
 		my $seq_out;
-		if($bed{$chr}{$f}[2] =~ /-/){
+		my @coord = split("_", $f);
+		if($bed{$chr}{$f}[1] =~ /-/){
 			my ($substring, $rev, $seq_in, $seq2);
-			my $outSeq = $seq -> subseq($bed{$chr}{$f}[1], $bed{$chr}{$f}[0]);
+			my $outSeq = $seq -> subseq($coord[1], $coord[0]);
 			if(defined($opts{R})){
 				my @outRNA;
 				$outSeq =~ tr/ATGC/UACG/;
@@ -121,12 +122,12 @@ foreach my $chr (sort {$a cmp $b} keys %bed){
 					push(@outRNA, $temp[$i]);
 				}
 				my $RNA = join("", @outRNA);
-				$substring = join("\n", ">$f", $RNA);
+				$substring = join("\n", ">$bed{$chr}{$f}[0]", $RNA);
 				$seq_in = Bio::SeqIO->new(-string => $substring);
 				$seq2 = $seq_in -> next_seq();
 			}
 			else{
-				$substring = join("\n", ">$f", $outSeq);
+				$substring = join("\n", ">$bed{$chr}{$f}[0]", $outSeq);
 				$seq_in = Bio::SeqIO->new(-string => $substring);
 				$seq2 = $seq_in -> next_seq();
 				$rev = $seq2 -> revcom;
@@ -145,11 +146,11 @@ foreach my $chr (sort {$a cmp $b} keys %bed){
 			}
 		}
 		elsif($bed{$chr}{$f}[2] !~ /-/){
-			my $outSeq = $seq -> subseq($bed{$chr}{$f}[0], $bed{$chr}{$f}[1]);
+			my $outSeq = $seq -> subseq($coord[0], $coord[1]);
 			if(defined($opts{R})){
 				$outSeq =~ tr/T/U/;
 			}
-			my $substring = join("\n", ">$f", $outSeq);
+			my $substring = join("\n", ">$bed{$chr}{$f}[0]", $outSeq);
 			my $seq_in = Bio::SeqIO->new(-string => $substring);
 			my $seq = $seq_in -> next_seq();
 			if(defined $opts{t}){
