@@ -4,7 +4,7 @@ use strict;
 use Getopt::Std;
 
 my (%opts);
-getopts("rCS:", \%opts);
+getopts("rgCS:", \%opts);
 
 if(@ARGV < 1){
 	die "
@@ -16,6 +16,7 @@ Usage: gff2bed.pl <options> <file.gff3> > STDOUT
 
 options:
 	-r	reverse conversion, i.e. bed2gff
+	-g	convert gtf --> bed
 	-C	Bed2Crd reverse conversion but instead of a GFF output
 		you will get a .coord or .crd output which is
 		gene\tstart\tstop\tseq (for use with TransTermHP)
@@ -79,39 +80,44 @@ elsif(defined($opts{r})){
 }
 
 else{
-	my($name);
-	open(FILE, "< $file") || die "cannot open file $file";
-	while(my $line = <FILE>){
-		if($line =~ /^#/){
-		}
-		else{
-			chomp($line);
-			my @tabs = split("\t", $line);
-			if($tabs[8] =~ /;/){
-				my @tabs2 = split(";", $tabs[8]);
-				#print "$tabs2[0]\n";
-				if(defined($opts{S})){
-					my %tempHash;
-					foreach my $T2 (@tabs2){
-						my @pairs = split("=", $T2);
-						$tempHash{$pairs[0]} = $pairs[1];
-					}
-					$name = $tempHash{$opts{S}};
-				}
-				elsif($tabs2[0]=~ /ID=(\S+)/){
-					$name = $1;
-				}
-				elsif($tabs2[0] =~ /^NAME=(\S+)/i){
-					$name = $1;
-				}
-			}
-			else{
-				my @tabs2 = split("=", $tabs[8]);
-				$name = $tabs2[1];
-			}
-			$tabs[3] = $tabs[3] - 1;
-			my $newLine = join("\t", $tabs[0], $tabs[3], $tabs[4], $name, $tabs[5], $tabs[6]);
-			print "$newLine\n";
-		}
-	}
+  my($name);
+  open(FILE, "< $file") || die "cannot open file $file";
+  while(my $line = <FILE>){
+    if($line =~ /^#/){
+    }
+    else{
+      chomp($line);
+      my @tabs = split("\t", $line);
+      if($tabs[8] =~ /;/){
+        if(defined($opts{g})){
+          $tabs[8] =~ s/; /;/g;
+          $tabs[8] =~ s/ "/=/g;
+          $tabs[8] =~ s/";/;/g;
+        }
+        my @tabs2 = split(";", $tabs[8]);
+        #print "$tabs2[0]\n";
+        if(defined($opts{S})){
+          my %tempHash;
+          foreach my $T2 (@tabs2){
+            my @pairs = split("=", $T2);
+            $tempHash{$pairs[0]} = $pairs[1];
+          }
+          $name = $tempHash{$opts{S}};
+        }
+        elsif($tabs2[0]=~ /ID=(\S+)/){
+          $name = $1;
+        }
+        elsif($tabs2[0] =~ /^NAME=(\S+)/i){
+          $name = $1;
+        }
+      }
+      else{
+        my @tabs2 = split("=", $tabs[8]);
+        $name = $tabs2[1];
+      }
+      $tabs[3] = $tabs[3] - 1;
+      my $newLine = join("\t", $tabs[0], $tabs[3], $tabs[4], $name, $tabs[5], $tabs[6]);
+      print "$newLine\n";
+    }
+  }
 }
