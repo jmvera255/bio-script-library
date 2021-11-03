@@ -21,8 +21,10 @@ Note: This script is designed to work with stranded ntcov.txt files. These files
 using bedTools genomeCovBed with -d parameter which will make genomeCoverageBed report read depth 
 at each genome position with one-based coordinates
 
-Note: This script by default expects stranded data (i.e. RNA-seq). In the case of ChIP-seq data, 
-use the -i option to specify that the data is not stranded; only use -p to provide ntcov.txt file 
+Note: This script by default expects stranded data (i.e. RNA-seq). 
+In the case of unstranded data like ChIP-seq or protein AA coverage 
+use the -i option to specify that the data is not stranded; only 
+use -p to provide ntcov.txt file 
 
 where options are:
 -a	print out average over length of bed feature; returns a bed file with average as score (default)
@@ -30,10 +32,9 @@ where options are:
 -E	print sum of coverage along feature; returns bed file w/score
 -m	minus strand coverage ntcov.txt, any number can be provided in a comma-delimited list
 -p	plus strand coverage ntcov.txt, any number can be provided in a comma-delimited list
--G	return results sorted by gene name; default is to print in order of bed file
--g	return per nucleotide values in columns with single gene as row; sorted by gene name
-	and columns ordered strand specifically
--M	return max per nucleotide value per feature
+-g	return per nucleotide values in columns with single gene as row; 
+        prints in order of bed file, columns ordered strand specifically (good for metagene plots)
+-M	return max value per feature
 -h	specify column header (intended for use with -n option only)
 -i	specifies that the data is not stranded (e.g. ChIP-seq data)
 
@@ -180,21 +181,13 @@ while (my $line = <BED>){
 				}
 			}
 		}
-
-		if(defined $opts{g} || defined $opts{M}){
-			if(not defined $byGene{$cols[3]}){
-				$geneStarts{$cols[3]} = $cols[1];
-				@{$byGene{$cols[3]}} = @temp;
-			}
-			else{
-				if($cols[1] > $geneStarts{$cols[3]}){
-					unshift(@{$byGene{$cols[3]}}, @temp);
-				}
-				elsif($cols[1] < $geneStarts{$cols[3]}){
-					push(@{$byGene{$cols[3]}}, @temp);
-				}
-			}
-			@temp = ();
+		if(defined $opts{M}){
+			my $max = max(@temp);
+			print "$cols[3]\t$max\n";
+		}
+		elsif(defined $opts{g}) {
+			my $line = join("\t", @temp);
+			print "$cols[3]\t$line\n";
 		}
 		elsif(defined $opts{a} || not defined $opts{n}){
 			if($length == 0){
@@ -214,40 +207,18 @@ while (my $line = <BED>){
 				my $newLine = join("\t", @cols);
 				print "$newLine\n";
 				$lines{$c} = $newLine;
-				if(defined $opts{G}){
-					$sums{$c} = $cols[3];
-				}
-				else{
-					$sums{$c} = $cols[4]; # sort by score
-				}
-				@temp = ();
-				$c++;
-				$sum = 0;
+				#if(defined $opts{G}){
+				#	$sums{$c} = $cols[3];
+				#}
+				$sums{$c} = $cols[4]; # sort by score
+				#@temp = ();
+				#$c++;
+				#$sum = 0;
 			}
 		}
+		@temp = ();
+		$c++;
+		$sum = 0;
 	}
 }
 
-#######_print sum or average_#########
-if(defined $opts{G}){
-	foreach my $k (sort {$sums{$a} cmp $sums{$b}} keys %sums){
-		print "$lines{$k}\n";
-	}
-}
-elsif(defined $opts{g} || defined $opts{M}){
-	foreach my $g (sort {$a cmp $b} keys %byGene){
-		if(defined $opts{M}){
-			my $max = max(@{$byGene{$g}});
-			print "$g\t$max\n";
-		}
-		else{
-			my $line = join("\t", @{$byGene{$g}});
-			print "$g\t$line\n";
-		}
-	}
-}
-#else{
-#	foreach my $k (sort {$sums{$a} <=> $sums{$b}} keys %sums){
-#		print "$lines{$k}\n";
-#	}
-#}
